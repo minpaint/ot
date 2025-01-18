@@ -1,6 +1,0 @@
-
-Django>=4.2
-pandas
-reportlab
-python-decouple
-         
