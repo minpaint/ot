@@ -1,7 +1,5 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import render, redirect
-from django.http import JsonResponse
 from .models import Employee
 from .serializers import EmployeeListSerializer, EmployeeDetailSerializer
 from apps.core.permissions import HasOrganizationPermission
@@ -29,3 +27,12 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         if self.action == 'list':
             return EmployeeListSerializer
         return EmployeeDetailSerializer
+
+    def perform_create(self, serializer):
+        """
+        Привязываем создаваемого сотрудника к организации пользователя
+        """
+        if not self.request.user.is_superuser and self.request.user.organizations.count() == 1:
+            serializer.save(organization=self.request.user.organizations.first())
+        else:
+            serializer.save()

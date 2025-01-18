@@ -1,30 +1,18 @@
 from django.db import models
 from apps.organizations.models import Organization
 
-class Document(models.Model):
-    """
-    Модель документа
-    """
-    DOCUMENT_TYPES = [
-        ('policy', 'Политика'),
-        ('procedure', 'Процедура'),
-        ('instruction', 'Инструкция'),
-        ('regulation', 'Положение'),
-        ('order', 'Приказ'),
-        ('other', 'Прочее'),
-    ]
 
+class Document(models.Model):
+    """Модель документа"""
     organization = models.ForeignKey(
         Organization,
         on_delete=models.CASCADE,
         verbose_name='Организация'
     )
 
-    type = models.CharField(
-        'Тип документа',
-        max_length=20,
-        choices=DOCUMENT_TYPES,
-        default='other'
+    name = models.CharField(
+        'Наименование',
+        max_length=250
     )
 
     number = models.CharField(
@@ -33,25 +21,17 @@ class Document(models.Model):
         blank=True
     )
 
-    name = models.CharField(
-        'Наименование',
-        max_length=500
+    date = models.DateField(
+        'Дата документа',
+        null=True,
+        blank=True
     )
 
     file = models.FileField(
-        'Файл документа',
-        upload_to='documents/%Y/%m/',
+        'Файл',
+        upload_to='documents/',
+        null=True,
         blank=True
-    )
-
-    description = models.TextField(
-        'Описание',
-        blank=True
-    )
-
-    is_active = models.BooleanField(
-        'Действующий',
-        default=True
     )
 
     created = models.DateTimeField(
@@ -60,7 +40,7 @@ class Document(models.Model):
     )
 
     updated = models.DateTimeField(
-        'Обновлен',
+        'Изменен',
         auto_now=True
     )
 
@@ -68,9 +48,8 @@ class Document(models.Model):
         verbose_name = 'Документ'
         verbose_name_plural = 'Документы'
         ordering = ['-created']
-        unique_together = ['organization', 'type', 'number']
 
     def __str__(self):
         if self.number:
-            return f"{self.get_type_display()} №{self.number} - {self.name}"
+            return f"{self.name} №{self.number}"
         return self.name
