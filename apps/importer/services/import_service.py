@@ -63,7 +63,7 @@ class ImportService:
         data = row.to_dict()
 
         # Обработка связанных полей
-        if 'organization' in 
+        if 'organization' in data:
             data['organization_id'] = Organization.objects.get(
                 short_name=data.pop('organization')
             ).id
@@ -73,7 +73,7 @@ class ImportService:
                 name=data.pop('department')
             ).id
 
-        if 'position' in 
+        if 'position' in data:
             data['position_id'] = Position.objects.get(
                 name=data.pop('position')
             ).id
