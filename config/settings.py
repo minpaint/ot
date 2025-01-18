@@ -28,7 +28,9 @@ INSTALLED_APPS = [
     'apps.departments',
     'apps.importer',
     'apps.exporter',
-    'import_export',  # Убедитесь, что это приложение или библиотека установлена
+    'import_export',
+    'crispy_forms',
+    'crispy_bootstrap4'# Убедитесь, что это приложение или библиотека установлена
 ]
 
 MIDDLEWARE = [
