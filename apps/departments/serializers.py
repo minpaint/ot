@@ -3,8 +3,14 @@ from .models import Department
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
-    """Сериализатор для модели Department."""
+    """Сериализатор для модели Department"""
 
     class Meta:
         model = Department
-        fields = ['id', 'name', 'organization']
+        fields = [
+            'id',
+            'organization',
+            'name',
+            'created',
+            'updated'
+        ]

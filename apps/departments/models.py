@@ -1,12 +1,10 @@
 from django.db import models
-from treebeard.mp_tree import MP_Node
 from apps.organizations.models import Organization
 
 
-class Department(MP_Node):
-    """
-    Модель подразделения с поддержкой древовидной структуры
-    """
+class Department(models.Model):
+    """Модель подразделения"""
+
     organization = models.ForeignKey(
         Organization,
         on_delete=models.CASCADE,
@@ -15,19 +13,24 @@ class Department(MP_Node):
 
     name = models.CharField(
         'Наименование',
-        max_length=500
-    )
-
-    short_name = models.CharField(
-        'Краткое наименование',
         max_length=250
     )
 
-    node_order_by = ['name']
+    created = models.DateTimeField(
+        'Создано',
+        auto_now_add=True
+    )
+
+    updated = models.DateTimeField(
+        'Изменено',
+        auto_now=True
+    )
 
     class Meta:
         verbose_name = 'Подразделение'
         verbose_name_plural = 'Подразделения'
+        ordering = ['name']
+        unique_together = ['organization', 'name']
 
     def __str__(self):
-        return f"{self.short_name} ({self.organization.short_name})"
+        return self.name
