@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}{{ employee.get_full_name }}{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ employee.get_full_name }}</h1>
+        <div>
+            <a href="{% url 'employees:update' employee.pk %}" 
+               class="btn btn-primary">
+                Редактировать
+            </a>
+            <button type="button" class="btn btn-danger delete-btn"
+                    data-bs-toggle="modal" data-bs-target="#deleteModal">
+                Удалить
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                {% if employee.photo %}
+                    <img src="{{ employee.photo.url }}" class="card-img-top" 
+                         alt="{{ employee.get_full_name }}">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                         style="height: 300px;">
+                        <i class="bi bi-person" style="font-size: 6rem;"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">Контактная информация</h5>
+                    <ul class="list-unstyled">
+                        {% if employee.phone %}
+                            <li class="mb-2">
+                                <i class="bi bi-telephone me-2"></i>
+                                {{ employee.phone }}
+                            </li>
+                        {% endif %}
+                        {% if employee.email %}
+                            <li class="mb-2">
+                                <i class="bi bi-envelope me-2"></i>
+                                {{ employee.email }}
+                            </li>
+                        {% endif %}
+                        {% if employee.address %}
+                            <li>
+                                <i class="bi bi-geo-alt me-2"></i>
+                                {{ employee.address }}
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Основная информация</h5>
+                    <dl class="row">
+                        <dt class="col-sm-4">Организация</dt>
+                        <dd class="col-sm-8">
+                            <a href="{% url 'organizations:detail' employee.organization.pk %}">
+                                {{ employee.organization.short_name }}
+                            </a>
+                        </dd>
+
+                        <dt class="col-sm-4">Подразделение</dt>
+                        <dd class="col-sm-8">
+                            <a href="{% url 'departments:detail' employee.department.pk %}">
+                                {{ employee.department.name }}
+                            </a>
+                        </dd>
+
+                        <dt class="col-sm-4">Должность</dt>
+                        <dd class="col-sm-8">{{ employee.position.name }}</dd>
+
+                        <dt class="col-sm-4">Дата рождения</dt>
+                        <dd class="col-sm-8">
+                            {{ employee.birth_date }} ({{ employee.age }} лет)
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Документы для ознакомления</h5>
+                    <div class="list-group">
+                        {% for doc in documents %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ doc.name }}</h6>
+                                        <small class="text-muted">
+                                            Дата утверждения: {{ doc.approval_date }}
+                                        </small>
+                                    </div>
+                                    <div>
+                                        {% if doc in employee.familiarized_documents.all %}
+                                            <span class="badge bg-success">Ознакомлен</span>
+                                        {% else %}
+                                            <button class="btn btn-primary btn-sm familiarize-btn"
+                                                    data-document-id="{{ doc.id }}">
+                                                Ознакомиться
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="alert alert-info mb-0">
+                                Нет документов для ознакомления
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно подтверждения удаления -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Подтверждение удаления</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Вы действительно хотите удалить сотрудника {{ employee.get_full_name }}?</p>
+                    <p class="text-danger">Это действие нельзя будет отменить.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Отмена
+                    </button>
+                    <form method="post" action="{% url 'employees:delete' employee.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Удалить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

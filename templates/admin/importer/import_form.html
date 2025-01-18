@@ -1,0 +1,198 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        .import-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 4px;
+        }
+        .help-text {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        .progress-container {
+            margin-top: 20px;
+            display: none;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            background-color: #79aec8;
+            transition: width 0.3s ease;
+        }
+        .template-list {
+            margin-top: 15px;
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .template-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .template-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="import-container">
+        <h1>Импорт данных</h1>
+
+        <form method="post" enctype="multipart/form-data" id="import-form">
+            {% csrf_token %}
+
+            <div class="form-row">
+                {{ form.content_type.label_tag }}
+                {{ form.content_type }}
+                {% if form.content_type.errors %}
+                    <p class="errornote">{{ form.content_type.errors }}</p>
+                {% endif %}
+            </div>
+
+            <div class="form-row">
+                {{ form.file.label_tag }}
+                {{ form.file }}
+                {% if form.file.errors %}
+                    <p class="errornote">{{ form.file.errors }}</p>
+                {% endif %}
+            </div>
+
+            <div class="submit-row">
+                <input type="submit" value="Импортировать" class="default">
+            </div>
+        </form>
+
+        <div class="progress-container" id="progress-container">
+            <h3>Прогресс импорта</h3>
+            <div class="progress-bar">
+                <div class="progress" id="progress-bar"></div>
+            </div>
+            <p id="progress-text">Обработано: 0 из 0 записей</p>
+            <div id="error-container"></div>
+        </div>
+
+        <div class="help-text">
+            <h3>Шаблоны для импорта:</h3>
+            <div class="template-list">
+                <div class="template-item">
+                    <strong>Организации:</strong>
+                    <a href="{% url 'importer:download-template' 'organization' %}" 
+                       class="button">Скачать шаблон</a>
+                </div>
+                <div class="template-item">
+                    <strong>Подразделения:</strong>
+                    <a href="{% url 'importer:download-template' 'department' %}" 
+                       class="button">Скачать шаблон</a>
+                </div>
+                <div class="template-item">
+                    <strong>Должности:</strong>
+                    <a href="{% url 'importer:download-template' 'position' %}" 
+                       class="button">Скачать шаблон</a>
+                </div>
+                <div class="template-item">
+                    <strong>Сотрудники:</strong>
+                    <a href="{% url 'importer:download-template' 'employee' %}" 
+                       class="button">Скачать шаблон</a>
+                </div>
+                <div class="template-item">
+                    <strong>Документы:</strong>
+                    <a href="{% url 'importer:download-template' 'document' %}" 
+                       class="button">Скачать шаблон</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('import-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const form = this;
+            const formData = new FormData(form);
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const errorContainer = document.getElementById('error-container');
+
+            progressContainer.style.display = 'block';
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    checkImportStatus(data.import_id);
+                } else {
+                    showError('Ошибка при начале импорта');
+                }
+            })
+            .catch(error => {
+                showError('Ошибка при отправке формы: ' + error);
+            });
+
+            function checkImportStatus(importId) {
+                fetch(`/import/status/${importId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const progress = (data.processed_rows / data.total_rows) * 100;
+                        progressBar.style.width = `${progress}%`;
+                        progressText.textContent = 
+                            `Обработано: ${data.processed_rows} из ${data.total_rows} записей`;
+
+                        if (data.errors && Object.keys(data.errors).length > 0) {
+                            showErrors(data.errors);
+                        }
+
+                        if (data.status !== 'completed' && data.status !== 'failed') {
+                            setTimeout(() => checkImportStatus(importId), 1000);
+                        }
+                    })
+                    .catch(error => {
+                        showError('Ошибка при проверке статуса: ' + error);
+                    });
+            }
+
+            function showError(message) {
+                errorContainer.innerHTML = `
+                    <div class="error">
+                        ${message}
+                    </div>
+                `;
+            }
+
+            function showErrors(errors) {
+                errorContainer.innerHTML = `
+                    <div class="error">
+                        <h4>Ошибки при импорте:</h4>
+                        <ul>
+                            ${Object.entries(errors).map(([row, error]) => `
+                                <li>Строка ${row}: ${error}</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+        });
+    </script>
+{% endblock %}

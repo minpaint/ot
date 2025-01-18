@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if form.instance.pk %}
+    Редактирование {{ form.instance.short_name }}
+    {% else %}
+    Новая организация
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title">
+                        {% if form.instance.pk %}
+                        Редактирование организации
+                        {% else %}
+                        Новая организация
+                        {% endif %}
+                    </h1>
+
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+
+                        {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" 
+                                   class="form-label">
+                                {{ field.label }}
+                            </label>
+                            {{ field|addclass:"form-control" }}
+                            {% if field.help_text %}
+                            <div class="form-text">{{ field.help_text }}</div>
+                            {% endif %}
+                            {% if field.errors %}
+                            <div class="alert alert-danger mt-2">
+                                {{ field.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'organizations:list' %}" 
+                               class="btn btn-secondary me-md-2">
+                                Отмена
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                {% if form.instance.pk %}
+                                Сохранить
+                                {% else %}
+                                Создать
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

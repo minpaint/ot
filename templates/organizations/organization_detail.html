@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}{{ organization.short_name }}{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ organization.short_name }}</h1>
+        <a href="{% url 'organizations:update' organization.pk %}" 
+           class="btn btn-primary">
+            Редактировать
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Основная информация</h5>
+                    <dl class="row">
+                        <dt class="col-sm-3">Полное название</dt>
+                        <dd class="col-sm-9">{{ organization.full_name }}</dd>
+
+                        <dt class="col-sm-3">Краткое название</dt>
+                        <dd class="col-sm-9">{{ organization.short_name }}</dd>
+
+                        <dt class="col-sm-3">Описание (RU)</dt>
+                        <dd class="col-sm-9">{{ organization.details_ru|linebreaks }}</dd>
+
+                        <dt class="col-sm-3">Описание (BY)</dt>
+                        <dd class="col-sm-9">{{ organization.details_by|linebreaks }}</dd>
+
+                        {% if organization.parent %}
+                        <dt class="col-sm-3">Головная организация</dt>
+                        <dd class="col-sm-9">
+                            <a href="{% url 'organizations:detail' organization.parent.pk %}">
+                                {{ organization.parent.short_name }}
+                            </a>
+                        </dd>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Подразделения</h5>
+                        <a href="{% url 'departments:create' %}?organization={{ organization.pk }}" 
+                           class="btn btn-sm btn-primary">
+                            Добавить подразделение
+                        </a>
+                    </div>
+                    <div class="list-group">
+                        {% for department in departments %}
+                        <a href="{% url 'departments:detail' department.pk %}" 
+                           class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ department.name }}</h6>
+                                    <small>{{ department.employees.count }} сотрудников</small>
+                                </div>
+                                <span class="badge bg-secondary">
+                                    {{ department.positions.count }} должностей
+                                </span>
+                            </div>
+                        </a>
+                        {% empty %}
+                        <div class="alert alert-info">
+                            Подразделения не найдены
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Статистика</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Всего сотрудников
+                            <span class="badge bg-primary rounded-pill">
+                                {{ employees_count }}
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Подразделений
+                            <span class="badge bg-primary rounded-pill">
+                                {{ departments|length }}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            {% if organization.children.exists %}
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Дочерние организации</h5>
+                    <div class="list-group">
+                        {% for child in organization.children.all %}
+                        <a href="{% url 'organizations:detail' child.pk %}" 
+                           class="list-group-item list-group-item-action">
+                            {{ child.short_name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

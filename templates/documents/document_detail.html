@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}{{ document.name }}{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ document.name }}</h1>
+        <div>
+            <a href="{% url 'documents:update' document.pk %}" 
+               class="btn btn-primary me-2">
+                Редактировать
+            </a>
+            <a href="{% url 'documents:download' document.pk %}" 
+               class="btn btn-outline-primary me-2">
+                <i class="bi bi-download"></i> Скачать
+            </a>
+            <button type="button" class="btn btn-danger"
+                    data-bs-toggle="modal" data-bs-target="#deleteModal">
+                Удалить
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Основная информация</h5>
+                    <dl class="row">
+                        <dt class="col-sm-4">Тип документа</dt>
+                        <dd class="col-sm-8">{{ document.document_type }}</dd>
+
+                        <dt class="col-sm-4">Статус</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-{{ document.get_status_color }}">
+                                {{ document.get_status_display }}
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Дата утверждения</dt>
+                        <dd class="col-sm-8">{{ document.approval_date }}</dd>
+
+                        <dt class="col-sm-4">Организация</dt>
+                        <dd class="col-sm-8">
+                            <a href="{% url 'organizations:detail' document.organization.pk %}">
+                                {{ document.organization.short_name }}
+                            </a>
+                        </dd>
+
+                        <dt class="col-sm-4">Подразделение</dt>
+                        <dd class="col-sm-8">
+                            <a href="{% url 'departments:detail' document.department.pk %}">
+                                {{ document.department.name }}
+                            </a>
+                        </dd>
+
+                        <dt class="col-sm-4">Описание</dt>
+                        <dd class="col-sm-8">{{ document.description|linebreaks }}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">История ознакомления</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Сотрудник</th>
+                                    <th>Должность</th>
+                                    <th>Дата ознакомления</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for familiarization in document.documentfamiliarization_set.all %}
+                                    <tr>
+                                        <td>
+                                            <a href="{% url 'employees:detail' familiarization.employee.pk %}">
+                                                {{ familiarization.employee.get_full_name }}
+                                            </a>
+                                        </td>
+                                        <td>{{ familiarization.employee.position.name }}</td>
+                                        <td>{{ familiarization.familiarized_date|default:"-" }}</td>
+                                        <td>
+                                            {% if familiarization.is_familiarized %}
+                                                <span class="badge bg-success">Ознакомлен</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">Ожидает</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">
+                                            Нет данных об ознакомлении
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Статистика ознакомления</h5>
+                    <div class="progress mb-3">
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: {{ document.familiarization_progress }}%">
+                            {{ document.familiarization_progress }}%
+                        </div>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Всего сотрудников
+                            <span class="badge bg-primary rounded-pill">
+                                {{ document.required_employees.count }}
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Ознакомлено
+                            <span class="badge bg-success rounded-pill">
+                                {{ document.familiarized_employees.count }}
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Ожидает ознакомления
+                            <span class="badge bg-warning rounded-pill">
+                                {{ document.pending_employees.count }}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            {% if document.positions.exists %}
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Требуется ознакомление</h5>
+                        <div class="list-group">
+                            {% for position in document.positions.all %}
+                                <div class="list-group-item">
+                                    {{ position.name }}
+                                    <span class="badge bg-primary rounded-pill float-end">
+                                        {{ position.employee_set.count }}
+                                    </span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Модальное окно подтверждения удаления -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Подтверждение удаления</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Вы действительно хотите удалить документ "{{ document.name }}"?</p>
+                    <p class="text-danger">Это действие нельзя будет отменить.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Отмена
+                    </button>
+                    <form method="post" action="{% url 'documents:delete' document.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Удалить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

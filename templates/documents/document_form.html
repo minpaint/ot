@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if form.instance.pk %}
+        Редактирование {{ form.instance.name }}
+    {% else %}
+        Новый документ
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h1 class="card-title">
+                        {% if form.instance.pk %}
+                            Редактирование документа
+                        {% else %}
+                            Новый документ
+                        {% endif %}
+                    </h1>
+
+                    <form method="post" enctype="multipart/form-data" class="mt-4">
+                        {% csrf_token %}
+                        
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" 
+                                       class="form-label">
+                                    {{ field.label }}
+                                </label>
+                                {% if field.name == 'file' %}
+                                    <div class="input-group">
+                                        {{ field|addclass:"form-control" }}
+                                        {% if form.instance.file %}
+                                            <a href="{{ form.instance.file.url }}" 
+                                               class="btn btn-outline-secondary" 
+                                               target="_blank">
+                                                Текущий файл
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                {% elif field.name == 'positions' %}
+                                    {{ field|addclass:"form-select" }}
+                                {% else %}
+                                    {{ field|addclass:"form-control" }}
+                                {% endif %}
+                                
+                                {% if field.help_text %}
+                                    <div class="form-text">{{ field.help_text }}</div>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="alert alert-danger mt-2">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'documents:list' %}" 
+                               class="btn btn-secondary me-md-2">
+                                Отмена
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                {% if form.instance.pk %}
+                                    Сохранить
+                                {% else %}
+                                    Создать
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Инициализация зависимых выпадающих списков
+    document.addEventListener('DOMContentLoaded', function() {
+        const organizationSelect = document.getElementById('id_organization');
+        const departmentSelect = document.getElementById('id_department');
+        const positionsSelect = document.getElementById('id_positions');
+        
+        if (organizationSelect && departmentSelect) {
+            organizationSelect.addEventListener('change', function() {
+                const organizationId = this.value;
+                
+                // Сброс и блокировка зависимых списков
+                departmentSelect.innerHTML = '<option value="">---------</option>';
+                departmentSelect.disabled = !organizationId;
+                
+                if (positionsSelect) {
+                    positionsSelect.innerHTML = '<option value="">---------</option>';
+                    positionsSelect.disabled = true;
+                }
+
+                if (organizationId) {
+                    // Загрузка подразделений
+                    fetch(`/employees/ajax/departments/?organization=${organizationId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            data.departments.forEach(dept => {
+                                const option = new Option(dept.name, dept.id);
+                                departmentSelect.add(option);
+                            });
+                            departmentSelect.disabled = false;
+                        });
+                }
+            });
+        }
+        
+        if (departmentSelect && positionsSelect) {
+            departmentSelect.addEventListener('change', function() {
+                const departmentId = this.value;
+                
+                // Сброс и блокировка списка должностей
+                positionsSelect.innerHTML = '<option value="">---------</option>';
+                positionsSelect.disabled = !departmentId;
+
+                if (departmentId) {
+                    // Загрузка должностей
+                    fetch(`/employees/ajax/positions/?department=${departmentId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            data.positions.forEach(pos => {
+                                const option = new Option(pos.name, pos.id);
+                                positionsSelect.add(option);
+                            });
+                            positionsSelect.disabled = false;
+                        });
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
