@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="container">
+        <h2>{% if form.instance.pk %}Редактирование сотрудника{% else %}Добавить сотрудника{% endif %}</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        {{ form.organization.label_tag }}
+                        {{ form.organization|addclass:"form-select" }}
+                        <div class="invalid-feedback">{{ form.organization.errors.0 }}</div>
+                    </div>
+                     <div class="mb-3">
+                        {{ form.department.label_tag }}
+                        {{ form.department|addclass:"form-select" }}
+                         <div class="invalid-feedback">{{ form.department.errors.0 }}</div>
+                    </div>
+                    <div class="mb-3">
+                       {{ form.position.label_tag }}
+                       {{ form.position|addclass:"form-select" }}
+                       <div class="invalid-feedback">{{ form.position.errors.0 }}</div>
+                    </div>
+                    <div class="mb-3">
+                       {{ form.last_name.label_tag }}
+                       {{ form.last_name|addclass:"form-control" }}
+                       <div class="invalid-feedback">{{ form.last_name.errors.0 }}</div>
+                    </div>
+                     <div class="mb-3">
+                       {{ form.first_name.label_tag }}
+                       {{ form.first_name|addclass:"form-control" }}
+                       <div class="invalid-feedback">{{ form.first_name.errors.0 }}</div>
+                    </div>
+                    <div class="mb-3">
+                         {{ form.middle_name.label_tag }}
+                         {{ form.middle_name|addclass:"form-control" }}
+                         <div class="invalid-feedback">{{ form.middle_name.errors.0 }}</div>
+                    </div>
+                    <div class="mb-3">
+                       {{ form.gender.label_tag }}
+                       {{ form.gender|addclass:"form-select" }}
+                       <div class="invalid-feedback">{{ form.gender.errors.0 }}</div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.birth_date.label_tag }}
+                        {{ form.birth_date|addclass:"form-control" }}
+                         <div class="invalid-feedback">{{ form.birth_date.errors.0 }}</div>
+                    </div>
+                      <div class="mb-3">
+                         {{ form.employment_date.label_tag }}
+                        {{ form.employment_date|addclass:"form-control" }}
+                         <div class="invalid-feedback">{{ form.employment_date.errors.0 }}</div>
+                     </div>
+                    <div class="mb-3">
+                         {{ form.personnel_number.label_tag }}
+                        {{ form.personnel_number|addclass:"form-control" }}
+                         <div class="invalid-feedback">{{ form.personnel_number.errors.0 }}</div>
+                    </div>
+                   <div class="mb-3">
+                       {{ form.email.label_tag }}
+                       {{ form.email|addclass:"form-control" }}
+                        <div class="invalid-feedback">{{ form.email.errors.0 }}</div>
+                    </div>
+                    <div class="mb-3">
+                        {{ form.phone.label_tag }}
+                        {{ form.phone|addclass:"form-control" }}
+                       <div class="invalid-feedback">{{ form.phone.errors.0 }}</div>
+                    </div>
+                     <div class="mb-3">
+                        {{ form.address.label_tag }}
+                        {{ form.address|addclass:"form-control" }}
+                          <div class="invalid-feedback">{{ form.address.errors.0 }}</div>
+                     </div>
+                     <div class="mb-3">
+                         {{ form.contracts.label_tag }}
+                         {{ form.contracts|addclass:"form-select" }}
+                           <div class="invalid-feedback">{{ form.contracts.errors.0 }}</div>
+                     </div>
+                     <div class="mb-3">
+                          {{ form.photo.label_tag }}
+                          {{ form.photo|addclass:"form-control" }}
+                    </div>
+
+                </div>
+                <div class="col-md-6">
+                       <fieldset class="border p-2 mb-3">
+                           <legend class="w-auto px-2">Антропометрические данные</legend>
+                                <div class="mb-3">
+                                  {{ form.rosts.label_tag }}
+                                  {{ form.rosts|addclass:"form-select" }}
+                                 </div>
+                                <div class="mb-3">
+                                    {{ form.clothesSizes.label_tag }}
+                                      {{ form.clothesSizes|addclass:"form-select" }}
+                                </div>
+                                <div class="mb-3">
+                                  {{ form.shoeSizes.label_tag }}
+                                  {{ form.shoeSizes|addclass:"form-select" }}
+                                </div>
+                                 <div class="mb-3">
+                                      {{ form.height.label_tag }}
+                                       {{ form.height|addclass:"form-control" }}
+                                   </div>
+                                   <div class="mb-3">
+                                       {{ form.clothing_size.label_tag }}
+                                       {{ form.clothing_size|addclass:"form-control" }}
+                                    </div>
+                                    <div class="mb-3">
+                                        {{ form.shoe_size.label_tag }}
+                                        {{ form.shoe_size|addclass:"form-control" }}
+                                     </div>
+                      </fieldset>
+                   </div>
+            </div>
+             <button type="submit" class="btn btn-primary">Сохранить</button>
+               <a href="{% url 'employees:employee_list' %}" class="btn btn-secondary">Отмена</a>
+        </form>
+    </div>
+     <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const organizationSelect = document.getElementById('id_organization');
+    const departmentSelect = document.getElementById('id_department');
+    function resetSelect(select, defaultText = '---------') {
+        select.innerHTML = `<option value="">${defaultText}</option>`;
+        select.disabled = true;
+    }
+    if (organizationSelect) {
+        organizationSelect.addEventListener('change', function() {
+            const organizationId = this.value;
+            resetSelect(departmentSelect, 'Выберите подразделение');
+            if (organizationId) {
+                const url = `/departments/by_organization/?organization_id=${organizationId}`;
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.departments && data.departments.length > 0) {
+                            departmentSelect.disabled = false;
+                            data.departments.forEach(dept => {
+                                const option = new Option(dept.name, dept.id);
+                                departmentSelect.add(option);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                         resetSelect(departmentSelect, 'Ошибка загрузки');
+                        console.error('Ошибка при загрузке подразделений:', error);
+                    });
+            }
+        });
+            if (organizationSelect.value) {
+                 organizationSelect.dispatchEvent(new Event('change'));
+             }
+    }
+});
+</script>
+{% endblock %}

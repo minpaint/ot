@@ -24,13 +24,15 @@ INSTALLED_APPS = [
     'apps.documents',
     'apps.employees',
     'apps.organizations',
+    'mptt',
     'apps.positions',
     'apps.departments',
     'apps.importer',
     'apps.exporter',
     'import_export',
     'crispy_forms',
-    'crispy_bootstrap4'# Убедитесь, что это приложение или библиотека установлена
+    'crispy_bootstrap4',
+    'treebeard'
 ]
 
 MIDDLEWARE = [

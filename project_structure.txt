@@ -48,13 +48,32 @@
   docs\usage
   locale
   media
+  media\documents
   requirements
   skip
+  skip\apps
+  skip\apps\api
+  skip\apps\employees
   static
+  static\admin
+  static\admin\css
+  static\admin\css\vendor
+  static\admin\css\vendor\select2
+  static\admin\img
+  static\admin\img\gis
+  static\admin\js
+  static\admin\js\admin
+  static\admin\js\vendor
+  static\admin\js\vendor\jquery
+  static\admin\js\vendor\select2
+  static\admin\js\vendor\select2\i18n
+  static\admin\js\vendor\xregexp
   static\css
   static\images
   static\img
+  static\import_export
   static\js
+  static\treebeard
   templates
   templates\admin
   templates\admin\importer
@@ -83,25 +102,28 @@
   apps\core\models.py
   apps\core\models\__init__.py
   apps\core\models\base.py
+  apps\core\permissions.py
   apps\core\urls.py
   apps\core\utils\__init__.py
   apps\core\views.py
   apps\departments\__init__.py
   apps\departments\admin.py
+  apps\departments\admin.py.bak
   apps\departments\apps.py
   apps\departments\forms.py
   apps\departments\migrations\0001_initial.py
   apps\departments\migrations\__init__.py
   apps\departments\models.py
+  apps\departments\serializers.py
   apps\departments\services.py
   apps\departments\tests\__init__.py
   apps\departments\urls.py
   apps\departments\views.py
   apps\documents\__init__.py
   apps\documents\admin.py
+  apps\documents\admin.py.bak
   apps\documents\apps.py
   apps\documents\forms.py
-  apps\documents\migrations\0001_initial.py
   apps\documents\migrations\__init__.py
   apps\documents\models.py
   apps\documents\serializers.py
@@ -116,9 +138,9 @@
   apps\documents\views.py
   apps\employees\__init__.py
   apps\employees\admin.py
+  apps\employees\admin.py.bak
   apps\employees\apps.py
   apps\employees\forms.py
-  apps\employees\migrations\0001_initial.py
   apps\employees\migrations\__init__.py
   apps\employees\models.py
   apps\employees\serializers.py
@@ -131,6 +153,7 @@
   apps\employees\tests\test_views.py
   apps\employees\urls.py
   apps\employees\views.py
+  apps\exporter\__init__.py
   apps\exporter\management\__init__.py
   apps\exporter\management\commands\__init__.py
   apps\exporter\management\commands\export_data.py
@@ -142,6 +165,7 @@
   apps\importer\management\commands\__init__.py
   apps\importer\management\commands\import_data.py
   apps\importer\migrations\0001_initial.py
+  apps\importer\migrations\0002_importsession_delete_importer.py
   apps\importer\migrations\__init__.py
   apps\importer\models.py
   apps\importer\serializers.py
@@ -156,6 +180,7 @@
   apps\organizations\apps.py
   apps\organizations\forms.py
   apps\organizations\migrations\0001_initial.py
+  apps\organizations\migrations\0002_organization_delete_organizations.py
   apps\organizations\migrations\__init__.py
   apps\organizations\models.py
   apps\organizations\serializers.py
@@ -172,9 +197,9 @@
   apps\positions\admin.py
   apps\positions\apps.py
   apps\positions\forms.py
-  apps\positions\migrations\0001_initial.py
   apps\positions\migrations\__init__.py
   apps\positions\models.py
+  apps\positions\serializers.py
   apps\positions\services.py
   apps\positions\tests\__init__.py
   apps\positions\urls.py
@@ -196,6 +221,7 @@
   core\utils\mixins.py
   core\utils\utils.py
   core\utils\validators.py
+  departments_backup.json
   docs\Makefile
   docs\api\index.rst
   docs\conf.py
@@ -203,27 +229,168 @@
   docs\index.rst
   docs\installation.rst
   docs\usage\index.rst
+  identifier.sqlite
   manage.py
+  media\documents\Справочник_Организация.docx
+  project_structure.txt
   requirements.txt
   requirements\base.txt
   requirements\development.txt
   requirements\production.txt
+  setup_project.py
+  skip\apps\api\urls.py
+  skip\apps\employees\views.py
+  skip\collect_base.py
   skip\collect_files.py
   skip\collect_files_path.py
   skip\collect_structure.py
   skip\create_structure.py
-  skip\project_content.txt
   skip\run_project.py
+  skip\setup_project.py
+  static\admin\css\autocomplete.css
+  static\admin\css\base.css
+  static\admin\css\changelists.css
+  static\admin\css\dark_mode.css
+  static\admin\css\dashboard.css
+  static\admin\css\forms.css
+  static\admin\css\login.css
+  static\admin\css\nav_sidebar.css
+  static\admin\css\responsive.css
+  static\admin\css\responsive_rtl.css
+  static\admin\css\rtl.css
+  static\admin\css\vendor\select2\LICENSE-SELECT2.md
+  static\admin\css\vendor\select2\select2.css
+  static\admin\css\vendor\select2\select2.min.css
+  static\admin\css\widgets.css
+  static\admin\img\LICENSE
+  static\admin\img\README.txt
+  static\admin\img\calendar-icons.svg
+  static\admin\img\gis\move_vertex_off.svg
+  static\admin\img\gis\move_vertex_on.svg
+  static\admin\img\icon-addlink.svg
+  static\admin\img\icon-alert.svg
+  static\admin\img\icon-calendar.svg
+  static\admin\img\icon-changelink.svg
+  static\admin\img\icon-clock.svg
+  static\admin\img\icon-deletelink.svg
+  static\admin\img\icon-no.svg
+  static\admin\img\icon-unknown-alt.svg
+  static\admin\img\icon-unknown.svg
+  static\admin\img\icon-viewlink.svg
+  static\admin\img\icon-yes.svg
+  static\admin\img\inline-delete.svg
+  static\admin\img\search.svg
+  static\admin\img\selector-icons.svg
+  static\admin\img\sorting-icons.svg
+  static\admin\img\tooltag-add.svg
+  static\admin\img\tooltag-arrowright.svg
+  static\admin\js\SelectBox.js
+  static\admin\js\SelectFilter2.js
+  static\admin\js\actions.js
+  static\admin\js\admin\DateTimeShortcuts.js
+  static\admin\js\admin\RelatedObjectLookups.js
+  static\admin\js\autocomplete.js
+  static\admin\js\calendar.js
+  static\admin\js\cancel.js
+  static\admin\js\change_form.js
+  static\admin\js\collapse.js
+  static\admin\js\core.js
+  static\admin\js\filters.js
+  static\admin\js\inlines.js
+  static\admin\js\jquery.init.js
+  static\admin\js\nav_sidebar.js
+  static\admin\js\popup_response.js
+  static\admin\js\prepopulate.js
+  static\admin\js\prepopulate_init.js
+  static\admin\js\theme.js
+  static\admin\js\urlify.js
+  static\admin\js\vendor\jquery\LICENSE.txt
+  static\admin\js\vendor\jquery\jquery.js
+  static\admin\js\vendor\jquery\jquery.min.js
+  static\admin\js\vendor\select2\LICENSE.md
+  static\admin\js\vendor\select2\i18n\af.js
+  static\admin\js\vendor\select2\i18n\ar.js
+  static\admin\js\vendor\select2\i18n\az.js
+  static\admin\js\vendor\select2\i18n\bg.js
+  static\admin\js\vendor\select2\i18n\bn.js
+  static\admin\js\vendor\select2\i18n\bs.js
+  static\admin\js\vendor\select2\i18n\ca.js
+  static\admin\js\vendor\select2\i18n\cs.js
+  static\admin\js\vendor\select2\i18n\da.js
+  static\admin\js\vendor\select2\i18n\de.js
+  static\admin\js\vendor\select2\i18n\dsb.js
+  static\admin\js\vendor\select2\i18n\el.js
+  static\admin\js\vendor\select2\i18n\en.js
+  static\admin\js\vendor\select2\i18n\es.js
+  static\admin\js\vendor\select2\i18n\et.js
+  static\admin\js\vendor\select2\i18n\eu.js
+  static\admin\js\vendor\select2\i18n\fa.js
+  static\admin\js\vendor\select2\i18n\fi.js
+  static\admin\js\vendor\select2\i18n\fr.js
+  static\admin\js\vendor\select2\i18n\gl.js
+  static\admin\js\vendor\select2\i18n\he.js
+  static\admin\js\vendor\select2\i18n\hi.js
+  static\admin\js\vendor\select2\i18n\hr.js
+  static\admin\js\vendor\select2\i18n\hsb.js
+  static\admin\js\vendor\select2\i18n\hu.js
+  static\admin\js\vendor\select2\i18n\hy.js
+  static\admin\js\vendor\select2\i18n\id.js
+  static\admin\js\vendor\select2\i18n\is.js
+  static\admin\js\vendor\select2\i18n\it.js
+  static\admin\js\vendor\select2\i18n\ja.js
+  static\admin\js\vendor\select2\i18n\ka.js
+  static\admin\js\vendor\select2\i18n\km.js
+  static\admin\js\vendor\select2\i18n\ko.js
+  static\admin\js\vendor\select2\i18n\lt.js
+  static\admin\js\vendor\select2\i18n\lv.js
+  static\admin\js\vendor\select2\i18n\mk.js
+  static\admin\js\vendor\select2\i18n\ms.js
+  static\admin\js\vendor\select2\i18n\nb.js
+  static\admin\js\vendor\select2\i18n\ne.js
+  static\admin\js\vendor\select2\i18n\nl.js
+  static\admin\js\vendor\select2\i18n\pl.js
+  static\admin\js\vendor\select2\i18n\ps.js
+  static\admin\js\vendor\select2\i18n\pt-BR.js
+  static\admin\js\vendor\select2\i18n\pt.js
+  static\admin\js\vendor\select2\i18n\ro.js
+  static\admin\js\vendor\select2\i18n\ru.js
+  static\admin\js\vendor\select2\i18n\sk.js
+  static\admin\js\vendor\select2\i18n\sl.js
+  static\admin\js\vendor\select2\i18n\sq.js
+  static\admin\js\vendor\select2\i18n\sr-Cyrl.js
+  static\admin\js\vendor\select2\i18n\sr.js
+  static\admin\js\vendor\select2\i18n\sv.js
+  static\admin\js\vendor\select2\i18n\th.js
+  static\admin\js\vendor\select2\i18n\tk.js
+  static\admin\js\vendor\select2\i18n\tr.js
+  static\admin\js\vendor\select2\i18n\uk.js
+  static\admin\js\vendor\select2\i18n\vi.js
+  static\admin\js\vendor\select2\i18n\zh-CN.js
+  static\admin\js\vendor\select2\i18n\zh-TW.js
+  static\admin\js\vendor\select2\select2.full.js
+  static\admin\js\vendor\select2\select2.full.min.js
+  static\admin\js\vendor\xregexp\LICENSE.txt
+  static\admin\js\vendor\xregexp\xregexp.js
+  static\admin\js\vendor\xregexp\xregexp.min.js
   static\css\style.css
+  static\import_export\action_formats.js
+  static\import_export\guess_format.js
+  static\import_export\import.css
+  static\js\dependent_dropdowns.js
   static\js\import.js
   static\js\main.js
   static\js\utils.js
+  static\treebeard\expand-collapse.png
+  static\treebeard\jquery-ui-1.8.5.custom.min.js
+  static\treebeard\treebeard-admin.css
+  static\treebeard\treebeard-admin.js
   templates\admin\importer\import_form.html
   templates\admin\importer\import_status.html
   templates\base.html
   templates\documents\document_detail.html
   templates\documents\document_form.html
   templates\documents\document_list.html
+  templates\employee_form.html
   templates\employees\employee_detail.html
   templates\employees\employee_form.html
   templates\employees\employee_list.html

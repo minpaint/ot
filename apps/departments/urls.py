@@ -1,10 +1,8 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import DepartmentViewSet
+from django.urls import path
+from . import views
 
-router = DefaultRouter()
-router.register('', DepartmentViewSet, basename='departments')
+app_name = 'departments'
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('by_organization/', views.get_departments_by_organization, name='get_departments'),
 ]

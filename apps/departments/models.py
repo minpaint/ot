@@ -1,36 +1,31 @@
 from django.db import models
-from apps.organizations.models import Organization
+from mptt.models import MPTTModel, TreeForeignKey
 
 
-class Department(models.Model):
-    """Модель подразделения"""
-
+class Department(MPTTModel):
     organization = models.ForeignKey(
-        Organization,
+        'organizations.Organization',
         on_delete=models.CASCADE,
         verbose_name='Организация'
     )
-
-    name = models.CharField(
-        'Наименование',
-        max_length=250
+    name = models.CharField('Наименование', max_length=255)
+    short_name = models.CharField('Сокращенное наименование', max_length=50, default='') # Добавляем default
+    parent = TreeForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='children',
+        verbose_name='Родительское подразделение'
     )
+    is_active = models.BooleanField('Действующее', default=True)
 
-    created = models.DateTimeField(
-        'Создано',
-        auto_now_add=True
-    )
-
-    updated = models.DateTimeField(
-        'Изменено',
-        auto_now=True
-    )
+    class MPTTMeta:
+        order_insertion_by = ['name']
 
     class Meta:
-        verbose_name = 'Подразделение'
-        verbose_name_plural = 'Подразделения'
-        ordering = ['name']
-        unique_together = ['organization', 'name']
+        verbose_name = 'Структурное подразделение'
+        verbose_name_plural = 'Структурные подразделения'
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.organization.short_name})"
